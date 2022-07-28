@@ -20,9 +20,13 @@ public class PlayerAnimationSwitcher : MonoBehaviour
         {
             animator.SetTrigger("Attack");
         }
-
+        animator.SetBool("Grounded", Mover.Grounded);
         animator.SetBool("Walk", Mover.IsWalk);
-
-
+        if (Mover.jump)
+        {
+            animator.SetTrigger("Jump");
+            Mover.jump = false;
+        }
+        
     }
 }

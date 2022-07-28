@@ -19,10 +19,15 @@ public class PlayerMover : MonoBehaviour
     private float gravitation = 9.8f;
     [SerializeField]
     private float speed;
-
+    [SerializeField]
+    private float heightJump;
     private float speedFall;
 
+    private float mouseX;
+    private float mouseY;
 
+    public bool Grounded { get; private set; }
+    public bool jump;
     public bool IsWalk
     {
         get
@@ -37,6 +42,8 @@ public class PlayerMover : MonoBehaviour
     }
     private void Update()
     {
+        Grounded = player.isGrounded;
+
         speedFall += gravitation * Time.deltaTime;
         var along= Input.GetAxis("Vertical");
         var across= Input.GetAxis("Horizontal");
@@ -45,6 +52,11 @@ public class PlayerMover : MonoBehaviour
         if (player.isGrounded)
         {
             speedFall = -0.1f;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            speedFall = -heightJump;
+            jump = true;
         }
     }
     private void LateUpdate()
@@ -65,15 +77,16 @@ public class PlayerMover : MonoBehaviour
                 offset.z = hit.distance;
             }
         }
-        var camX = mouseSensetive * Input.GetAxis("Mouse X");
-        var camY = mouseSensetive * Input.GetAxis("Mouse Y");
-        var rot = playerCamera.rotation.eulerAngles;
-        var camXClamp = Mathf.Clamp(rot.x + -camY, 0 ,50f);
-        playerCamera.rotation = Quaternion.Euler(camXClamp, rot.y + camX, rot.z);
+        mouseX += mouseSensetive * Input.GetAxis("Mouse X");
+        mouseY -= mouseSensetive * Input.GetAxis("Mouse Y");
+
+        var camXClamp = Mathf.Clamp(mouseY, -10f ,40f);
+
+        playerCamera.rotation = Quaternion.Euler(camXClamp, mouseX, playerCamera.rotation.eulerAngles.z);
 
         if (IsWalk)
         {
-            transform.rotation = Quaternion.Euler(transform.rotation.x, rot.y + camX, transform.rotation.z);
+            transform.rotation = Quaternion.Euler(transform.rotation.x, mouseX, transform.rotation.z);
         }
         playerCamera.position += (playerCamera.right * offset.x) + (playerCamera.up * offset.y) + (-playerCamera.forward * offset.z);
     }
